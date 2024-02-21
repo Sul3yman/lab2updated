@@ -1,0 +1,69 @@
+function s = transmit(b,plot_flag)
+% s = transmit(b,plot_flag)
+% Transmitter program for part 1 of the project. The program should produce samples
+% of the transmitted signal. The sample rate is fs Hz.
+%
+% Input:
+%   b = vector containing the information bits to be transmitted
+%   plot_flag = flag for plotting [0: don't plot, 1: plot]  
+%
+% Output:
+%   s = vector containing samples of the transmitted signal at at rate of fs Hz
+%
+% Rev. C (VT 2016)
+
+%********** Begin program, EDIT HERE
+
+% Complete the code below to create samples of the transmitted signal.
+
+%1. Convert bits to symbols
+% Define the symbol rate Rs (symbols per second)
+fs=1000000;
+Ns = 4;
+Ts=1/fs
+Rs = 1/(Ns*Ts); % Example: 1000 symbols per second, defining the rate at which symbols are transmitted
+
+
+
+%trellis = poly2trellis(7, [171 133]); % Example trellis for a rate 1/2 code
+%encodedBits = convenc(b, trellis);
+
+if
+constellation = [-5 5];         % Specify constellation here (vector)
+a = zeros(size(b)); % Initialize the symbol vector 'a' with the same size as bit vector 'b'
+for i = 1:length(b)
+    a(i) = constellation(b(i) + 1); % Convert the bits in vector b to symbols in vector a based on the constellation mapping
+
+end
+      % Convert the bits in vector b to symbols in vector a
+plot_flag = 0;
+%2. Pulse Amplitude Modulation
+
+rolloffactor=0.6; % Define the roll-off factor for the pulse shaping filter
+span=6; % Define the span of the pulse shaping filter in symbol durations
+pulse = rcosdesign(rolloffactor,span,Ns(1),'sqrt');% Specify the transmit pulse here (vector)
+
+
+
+s = zeros(1,length(a)*Ns);    % Initialize the transmit signal vector 's' to accommodate all samples
+for i = 1:length(a)          %Calculate the start index for the current symbol in the transmit signal vector
+    startIndex=(i-1)*Ns(1)+1 %Calculate the end index for the current symbol in the transmit signal vector
+    endIndex=i*Ns(1)
+    s(startIndex:endIndex) = a(i) * pulse(1:Ns(1)); %  Modulate the current symbol onto the pulse and insert it into the transmit signal vector
+end
+
+ if plot_flag == 1
+        t = (0:length(s)-1) / fs; % Time vector
+        figure;
+        plot(t, s);
+        title('Transmitted Signal s[n]');
+        xlabel('Time (s)');
+        ylabel('Amplitude');
+        grid on;
+ end
+
+%********** DON'T EDIT FROM HERE ON
+% plot Tx signals
+PlotSignals(plot_flag, 'Tx', a, s)
+%********** End program
+end
